@@ -1,14 +1,14 @@
-const express = require('express')
-const app = express()
-app.set('view engine', 'ejs')
-app.use(express.static('./public/'))
+require('dotenv').config();  // Load environment variables from .env file
+const express = require('express');
+const app = express();
+app.set('view engine', 'ejs');
+app.use(express.static('./public/'));
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = process.env.uri; 
+const uri = process.env.URI;  // Make sure this matches the variable name in your .env file
 
 console.log(uri);
 
 // console.log('im on a node server change that and that tanad f, yo');
-
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -21,7 +21,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    // Connect the client to the server (optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -33,19 +33,19 @@ async function run() {
 }
 run().catch(console.dir);
 
-
 app.get('/', function (req, res) {
   // res.send('Hello Node from Ex on local dev box')
   res.sendFile('index.html');
-})
+});
 
-app.get('/ejs', (req,res)=>{
-``
+app.get('/ejs', (req, res) => {
   res.render('index', {
-    myServerVariable : "something from server"
+    myServerVariable: "something from server"
   });
 
-  //can you get content from client...to console? 
-})
+  // Can you get content from client...to console?
+});
 
-app.listen(5000)
+app.listen(5000, () => {
+  console.log('Server is running on http://localhost:5000');
+});
