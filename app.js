@@ -1,14 +1,15 @@
-require('dotenv').config();  // Load environment variables from .env file
-const express = require('express');
-const app = express();
+require('dotenv').config()
+const express = require('express')
+const app = express()
+const { MongoClient, ServerApiVersion } = require('mongodb'); 
+const uri = process.env.MONGO_URI; 
+
 app.set('view engine', 'ejs');
-app.use(express.static('./public/'));
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = process.env.URI;  // Make sure this matches the variable name in your .env file
+app.use(express.static('public'));
+// const path = require('path')
+// app.use('/static', express.static(path.join(__dirname, 'public')))
 
-console.log(uri);
 
-// console.log('im on a node server change that and that tanad f, yo');
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -21,7 +22,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server (optional starting in v4.7)
+    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -31,21 +32,24 @@ async function run() {
     await client.close();
   }
 }
-run().catch(console.dir);
+// run().catch(console.dir);
+
 
 app.get('/', function (req, res) {
-  // res.send('Hello Node from Ex on local dev box')
-  res.sendFile('index.html');
-});
+  res.sendFile('index.html')
+})
 
-app.get('/ejs', (req, res) => {
+//ejs stuff
+app.get('/ejs', async (req, res) => {
+ 
+  await client.connect();
+  let result = await client.db("alex's-db").collection("whatever-collection").find({}).toArray();
+
+  console.log(result);
+
   res.render('index', {
-    myServerVariable: "something from server"
+    ejsResult : result
   });
-
-  // Can you get content from client...to console?
 });
 
-app.listen(5000, () => {
-  console.log('Server is running on http://localhost:5000');
-});
+app.listen(3000)
