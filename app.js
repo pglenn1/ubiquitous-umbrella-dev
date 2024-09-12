@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 // Route for EJS rendering
 app.get('/ejs', async (req, res) => {
   try {
-    const result = await client.db("alex's-db").collection("whatever-collection").find({}).toArray();
+    const result = await client.db("ubiquitous-umbrella").collection("alex-ub-collection").find({}).toArray();
     console.log(result);
     res.render('index', { ejsResult: result });
   } catch (error) {
