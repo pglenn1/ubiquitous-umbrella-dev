@@ -1,17 +1,12 @@
-require('dotenv').config()
-const express = require('express')
-const app = express()
-const { MongoClient, ServerApiVersion } = require('mongodb'); 
-const uri = process.env.MONGO_URI; 
+require('dotenv').config();
+const express = require('express');
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const path = require('path');
 
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
-// const path = require('path')
-// app.use('/static', express.static(path.join(__dirname, 'public')))
+const app = express();
+const uri = process.env.MONGO_URI;
 
-
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+// Set up MongoDB client
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -20,36 +15,40 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
+app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Connect to MongoDB once and reuse the connection
+async function connectToMongo() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    console.log("Connected to MongoDB!");
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1); // Exit the application if there's an error connecting to MongoDB
   }
 }
-// run().catch(console.dir);
 
+// Connect to MongoDB when the server starts
+connectToMongo();
 
-app.get('/', function (req, res) {
-  res.sendFile('index.html')
-})
-
-//ejs stuff
-app.get('/ejs', async (req, res) => {
- 
-  await client.connect();
-  let result = await client.db("alex's-db").collection("whatever-collection").find({}).toArray();
-
-  console.log(result);
-
-  res.render('index', {
-    ejsResult : result
-  });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(3000)
+// Route for EJS rendering
+app.get('/ejs', async (req, res) => {
+  try {
+    const result = await client.db("alex's-db").collection("whatever-collection").find({}).toArray();
+    console.log(result);
+    res.render('index', { ejsResult: result });
+  } catch (error) {
+    console.error('Error fetching data from MongoDB:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
