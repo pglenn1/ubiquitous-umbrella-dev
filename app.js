@@ -11,6 +11,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static('./public/'));
 
+console.log('MongoDB URI:', uri);
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -19,64 +22,58 @@ const client = new MongoClient(uri, {
   }
 });
 
-// Connect to MongoDB once and reuse the connection
-let db;
-
-async function connectDB() {
-  if (!db) {
-    try {
-      await client.connect();
-      db = client.db("ubiquitous-umbrella");
-      console.log("Connected to MongoDB!");
-    } catch (error) {
-      console.error("Error connecting to MongoDB:", error);
-    }
-  }
-}
-
+// Route for the homepage
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+// Route for EJS rendering
 app.get('/ejs', (req, res) => {
   res.render('index', {
     myServerVariable: "something from server"
   });
 });
 
+// Route to read data from MongoDB and render with EJS
 app.get('/read', async (req, res) => {
   console.log('in /read');
   try {
-    await connectDB();
-    const result = await db.collection("alex-ub-collection").find({}).toArray();
+    await client.connect();
+    const result = await client.db("ubiquitous-umbrella").collection("alex-ub-collection").find({}).toArray();
     console.log(result);
     res.render('mongo', {
       postData: result
     });
   } catch (error) {
-    console.error("Error reading data from MongoDB:", error);
+    console.error("Error reading data from MongoDB:", error.message);
     res.status(500).send("Error reading data from MongoDB");
+  } finally {
+    await client.close();
   }
 });
 
+// Route to insert hardcoded data into MongoDB
 app.get('/insert', async (req, res) => {
   console.log('in /insert');
   try {
-    await connectDB();
-    await db.collection("alex-ub-collection").insertOne({ post: 'hardcoded post insert ' });
-    await db.collection("alex-ub-collection").insertOne({ iJustMadeThisUp: 'hardcoded new key ' });
+    await client.connect();
+    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ post: 'hardcoded post insert ' });
+    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ iJustMadeThisUp: 'hardcoded new key ' });
     res.render('insert');
   } catch (error) {
-    console.error("Error inserting data into MongoDB:", error);
+    console.error("Error inserting data into MongoDB:", error.message);
     res.status(500).send("Error inserting data into MongoDB");
+  } finally {
+    await client.close();
   }
 });
 
+// Route to update a document in MongoDB
 app.post('/update/:id', async (req, res) => {
   console.log("req.params.id: ", req.params.id);
   try {
-    await connectDB();
-    const collection = db.collection("alex-ub-collection");
+    await client.connect();
+    const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
     let result = await collection.findOneAndUpdate(
       { "_id": new ObjectId(req.params.id) },
       { $set: { "post": "NEW POST" } },
@@ -85,8 +82,10 @@ app.post('/update/:id', async (req, res) => {
     console.log(result);
     res.redirect('/read');
   } catch (error) {
-    console.error("Error updating document:", error);
+    console.error("Error updating document:", error.message);
     res.status(500).send("Error updating document");
+  } finally {
+    await client.close();
   }
 });
 
