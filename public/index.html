@@ -1,2 +1,22 @@
-<h1> my web page</h1>
-<p>and somehting else</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-Rex Runner Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="dino" id="dino"></div>
+        <div class="score" id="score">Score: 0</div>
+        <div id="game-over" style="display: none;">
+            <h1>Game Over</h1>
+            <p>Your score: <span id="final-score"></span></p>
+            <button id="play-again" onclick="resetGame()">Play Again</button>
+        </div>
+        <button id="start-game" onclick="startGame()" style="display: none;">Start Game</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
