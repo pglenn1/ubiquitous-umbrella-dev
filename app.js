@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
+/*async function run() {
   try {
     // Connect the client to the server (optional starting in v4.7)
     await client.connect();
@@ -38,10 +38,10 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
+*/
 // Route for the homepage
 app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
+  res.sendFile('index.html');
 });
 
 // Route for EJS rendering
@@ -54,59 +54,59 @@ app.get('/ejs', (req, res) => {
 // Route to read data from MongoDB and render with EJS
 app.get('/read', async (req, res) => {
   console.log('in /read');
-  try {
-    await client.connect();
-    const result = await client.db("ubiquitous-umbrella").collection("alex-ub-collection").find({}).toArray();
-    console.log(result);
-    res.render('mongo', {
-      postData: result
-    });
-  } catch (error) {
-    console.error("Error reading data from MongoDB:", error);
-    res.status(500).send("Error reading data from MongoDB");
-  } finally {
-    await client.close();
-  }
-});
+  await client.connect();
+  console.log('connected?');
+
+  let result = await client.db("ubiquitous-umbrella").collection("alex-ub-collection").find({}).toArray();
+  console.log(result);
+
+  res.render('read', {
+    postData : result
+  });
+})
 
 // Route to insert hardcoded data into MongoDB
-app.get('/insert', async (req, res) => {
+app.post('/insert', async (req, res) => {
   console.log('in /insert');
-  try {
-    await client.connect();
-    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ post: 'hardcoded post insert ' });
-    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ iJustMadeThisUp: 'hardcoded new key ' });
-    res.render('insert');
-  } catch (error) {
-    console.error("Error inserting data into MongoDB:", error);
-    res.status(500).send("Error inserting data into MongoDB");
-  } finally {
-    await client.close();
-  }
+  console.log('request', req.body);
+  console.log('request', req.body.newPost);
+
+  await client.connect();
+  await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ post: 'hardcoded post insert ' });
+  //await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ iJustMadeThisUp: 'hardcoded new key ' });
+  res.redirect('read');
 });
 
 // Route to update a document in MongoDB
 app.post('/update/:id', async (req, res) => {
   console.log("req.params.id: ", req.params.id);
-  try {
-    await client.connect();
-    const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
-    let result = await collection.findOneAndUpdate(
-      { "_id": new ObjectId(req.params.id) },
-      { $set: { "post": "NEW POST" } },
-      { returnOriginal: false }
-    );
+  client.connect();
+  const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
+  let result = await collection.findOneAndUpdate(
+  { "_id": new ObjectId(req.params.id) }, { $set: { "post": "NEW POST" } },
+  );
+.then(result => {
     console.log(result);
     res.redirect('/read');
-  } catch (error) {
-    console.error("Error updating document:", error);
-    res.status(500).send("Error updating document");
-  } finally {
-    await client.close();
-  }
+})
 });
+////////////////////////////////////////////////////////////////
+app.post('/delete/:id', async (req,res)=>{
 
-// Start the server
-app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
-});
+  console.log("req.parms.id: ", req.params.id)
+
+  client.connect; 
+  const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
+  let result = await collection.findOneAndDelete( 
+  {"_id": new ObjectId(req.params.id)})
+
+.then(result => {
+  console.log(result); 
+  res.redirect('/read');
+})
+
+  //insert into it
+
+})
+
+app.listen(3000);
