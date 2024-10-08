@@ -12,7 +12,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('./public/'));
 
 console.log(uri);
-console.log('im on a node server change that and that tanad f, yo');
+console.log(`Server is running on port ${PORT} and connected to MongoDB at ${new Date().toLocaleString()}.`);
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
