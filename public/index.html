@@ -13,10 +13,28 @@
         <div id="game-over" style="display: none;">
             <h1>Game Over</h1>
             <p>Your score: <span id="final-score"></span></p>
+            <form id="player-form" method="POST" action="/insert">
+                <label for="playerName">Enter your name:</label>
+                <input type="text" id="playerName" name="playerName" required>
+                <input type="hidden" id="finalScoreInput" name="finalScore">
+                <button type="submit">Submit</button>
+            </form>
             <button id="play-again" onclick="resetGame()">Play Again</button>
         </div>
         <button id="start-game" onclick="startGame()" style="display: none;">Start Game</button>
     </div>
-    <script src="script.js"></script> 
+    <script src="script.js"></script>
+    <script>
+        // Add this function to update the final score input
+        function gameOver() {
+            gameOverDisplay.style.display = 'block';
+            finalScoreDisplay.textContent = score;
+            document.getElementById('finalScoreInput').value = score; // Set the score in the hidden input
+            // Stop the game by clearing the obstacle creation interval
+            clearInterval(obstacleCreationInterval);
+            // Stop all ongoing obstacle movement intervals
+            obstacleIntervals.forEach(interval => clearInterval(interval));
+        }
+    </script>
 </body>
 </html>

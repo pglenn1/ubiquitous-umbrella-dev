@@ -49,11 +49,11 @@ app.get('/ejs', (req, res) => {
 // Route to read data from MongoDB and render with EJS
 app.get('/read', async (req, res) => {
   console.log('in /read');
-  
+
   try {
     let result = await client.db("ubiquitous-umbrella").collection("alex-ub-collection").find({}).toArray();
     console.log(result);
-    
+
     res.render('read', {
       postData: result
     });
@@ -67,13 +67,12 @@ app.get('/read', async (req, res) => {
 app.post('/insert', async (req, res) => {
   console.log('in /insert');
   console.log('request', req.body);
-  
+  console.log('request', req.body.newPost);
+
   try {
-    // Insert player name and post content into MongoDB
-    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({
-      playerName: req.body.playerName, // New field for player name
-      post: req.body.newPost
-    });
+    // Capture player's name and final score
+    const { playerName, finalScore } = req.body;
+    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ player: playerName, score: finalScore });
     res.redirect('read');
   } catch (error) {
     console.error("Error inserting into MongoDB:", error);
@@ -84,12 +83,12 @@ app.post('/insert', async (req, res) => {
 // Route to update a document in MongoDB
 app.post('/update/:id', async (req, res) => {
   console.log("req.params.id: ", req.params.id);
-  
+
   try {
     const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
     let result = await collection.findOneAndUpdate(
       { "_id": new ObjectId(req.params.id) },
-      { $set: { "post": "NEW POST" } } // You can modify this to update with new content if needed
+      { $set: { "post": "NEW POST" } }
     );
 
     console.log(result);
@@ -107,7 +106,7 @@ app.post('/delete/:id', async (req, res) => {
   try {
     const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
     let result = await collection.findOneAndDelete({ "_id": new ObjectId(req.params.id) });
-    
+
     console.log(result);
     res.redirect('/read');
   } catch (error) {
