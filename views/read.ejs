@@ -1,25 +1,49 @@
-<!-- read from my mongo -->
-<h1>see my mongoDB results</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Results</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>See My MongoDB Results</h1>
 
-<h1> insert something into mongo</h1>
 
-<form method="POST" action="/insert" style="display: inline-block">  
-    <label for="newPost"> 
-    <input id="newPost" name="newPost">
-    <input name="somethingElseIJustMadeUp">     
-    <input type="submit" value="update"> 
-</form>
+    <h2>Insert Player Name and Score</h2>
+    <form method="POST" action="/insert" style="display: inline-block">
+        <label for="playerName">Player Name: </label>
+        <input id="playerName" name="playerName" required>
+        <label for="finalScore">Final Score: </label>
+        <input id="finalScore" name="finalScore" type="number" required>
+        <input type="submit" value="Submit">
+    </form>
 
-<h3> my blog posts</h3> 
- <% for (var i=0; i< postData.length; i++ ) { %>
-  <form method="POST" action="/update/<%= postData[i]._id %>" style="display: inline-block">  
-    <%= postData[i].post %> 
-    <input type="submit" value="update"> 
-  </form>
-  <form method="POST" action="/delete/<%= postData[i]._id %>" style="display: inline-block">  
-    <input type="submit" value="delete"> 
-  </form>
-  <br/>
-<% } %>
 
-<hr>
+    <h3>My Blog Posts</h3>
+    <% if (postData.length > 0) { %>
+        <% postData.forEach(post => { %>
+            <div>
+                <strong>Player:</strong> <%= post.player %> <br>
+                <strong>Score:</strong> <%= post.score %>
+                <form method="POST" action="/update/<%= post._id %>" style="display: inline-block">
+                    <input type="submit" value="Update">
+                </form>
+                <form method="POST" action="/delete/<%= post._id %>" style="display: inline-block">
+                    <input type="submit" value="Delete">
+                </form>
+            </div>
+            <hr>
+        <% }) %>
+    <% } else { %>
+        <p>No posts available.</p>
+    <% } %>
+
+
+    <hr>
+<!-- Back to Game Button -->
+<a href="/" id="back-to-game" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Back to Game</a>
+
+
+</body>
+</html>

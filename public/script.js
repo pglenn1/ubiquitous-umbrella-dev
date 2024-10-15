@@ -90,10 +90,38 @@ function gameOver() {
     gameOverDisplay.style.display = 'block';
     finalScoreDisplay.textContent = score;
 
+    // Ask for player's name and save the score
+    const playerName = prompt("Game Over! Enter your name:");
+    if (playerName) {
+        submitScore(playerName, score);
+    }
+
     // Stop the game by clearing the obstacle creation interval
     clearInterval(obstacleCreationInterval);
     // Stop all ongoing obstacle movement intervals
     obstacleIntervals.forEach(interval => clearInterval(interval));
+}
+
+function submitScore(playerName, score) {
+    // Send the player name and score to the server
+    fetch('/insert', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ playerName: playerName, finalScore: score }),
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Score submitted successfully!');
+            // Optionally, refresh or redirect the page
+        } else {
+            console.error('Failed to submit score.');
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting score:', error);
+    });
 }
 
 function startGame() {

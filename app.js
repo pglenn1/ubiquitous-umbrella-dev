@@ -49,11 +49,11 @@ app.get('/ejs', (req, res) => {
 // Route to read data from MongoDB and render with EJS
 app.get('/read', async (req, res) => {
   console.log('in /read');
-  
+
   try {
     let result = await client.db("ubiquitous-umbrella").collection("alex-ub-collection").find({}).toArray();
     console.log(result);
-    
+
     res.render('read', {
       postData: result
     });
@@ -70,7 +70,9 @@ app.post('/insert', async (req, res) => {
   console.log('request', req.body.newPost);
 
   try {
-    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ post: req.body.newPost });
+    // Capture player's name and final score
+    const { playerName, finalScore } = req.body;
+    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ player: playerName, score: finalScore });
     res.redirect('read');
   } catch (error) {
     console.error("Error inserting into MongoDB:", error);
@@ -81,7 +83,7 @@ app.post('/insert', async (req, res) => {
 // Route to update a document in MongoDB
 app.post('/update/:id', async (req, res) => {
   console.log("req.params.id: ", req.params.id);
-  
+
   try {
     const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
     let result = await collection.findOneAndUpdate(
@@ -104,7 +106,7 @@ app.post('/delete/:id', async (req, res) => {
   try {
     const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
     let result = await collection.findOneAndDelete({ "_id": new ObjectId(req.params.id) });
-    
+
     console.log(result);
     res.redirect('/read');
   } catch (error) {
@@ -112,7 +114,6 @@ app.post('/delete/:id', async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 // Listen on the specified port
 app.listen(PORT, () => {
