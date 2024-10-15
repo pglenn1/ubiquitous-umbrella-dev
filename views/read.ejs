@@ -1,25 +1,31 @@
-<!-- read from my mongo -->
-<h1>see my mongoDB results</h1>
+<!-- read.ejs -->
+<h1>See My MongoDB Results</h1>
 
-<h1> insert something into mongo</h1>
+<h1>Insert Something into MongoDB</h1>
 
 <form method="POST" action="/insert" style="display: inline-block">  
-    <label for="newPost"> 
-    <input id="newPost" name="newPost">
-    <input name="somethingElseIJustMadeUp">     
-    <input type="submit" value="update"> 
+    <label for="playerName">Player Name:</label>
+    <input id="playerName" name="playerName" required>
+    
+    <label for="newPost">Post Content:</label>
+    <input id="newPost" name="newPost" required>
+    
+    <input type="submit" value="Submit"> 
 </form>
 
-<h3> my blog posts</h3> 
- <% for (var i=0; i< postData.length; i++ ) { %>
-  <form method="POST" action="/update/<%= postData[i]._id %>" style="display: inline-block">  
-    <%= postData[i].post %> 
-    <input type="submit" value="update"> 
-  </form>
-  <form method="POST" action="/delete/<%= postData[i]._id %>" style="display: inline-block">  
-    <input type="submit" value="delete"> 
-  </form>
-  <br/>
+<h3>My Blog Posts</h3> 
+<% for (var i = 0; i < postData.length; i++) { %>
+    <div>
+        <strong><%= postData[i].playerName %>:</strong> <!-- Display the player's name -->
+        <%= postData[i].post %> 
+    </div>
+    <form method="POST" action="/update/<%= postData[i]._id %>" style="display: inline-block">  
+        <input type="submit" value="Update"> 
+    </form>
+    <form method="POST" action="/delete/<%= postData[i]._id %>" style="display: inline-block">  
+        <input type="submit" value="Delete"> 
+    </form>
+    <br/>
 <% } %>
 
 <hr>

@@ -67,10 +67,13 @@ app.get('/read', async (req, res) => {
 app.post('/insert', async (req, res) => {
   console.log('in /insert');
   console.log('request', req.body);
-  console.log('request', req.body.newPost);
-
+  
   try {
-    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({ post: req.body.newPost });
+    // Insert player name and post content into MongoDB
+    await client.db("ubiquitous-umbrella").collection("alex-ub-collection").insertOne({
+      playerName: req.body.playerName, // New field for player name
+      post: req.body.newPost
+    });
     res.redirect('read');
   } catch (error) {
     console.error("Error inserting into MongoDB:", error);
@@ -86,7 +89,7 @@ app.post('/update/:id', async (req, res) => {
     const collection = client.db("ubiquitous-umbrella").collection("alex-ub-collection");
     let result = await collection.findOneAndUpdate(
       { "_id": new ObjectId(req.params.id) },
-      { $set: { "post": "NEW POST" } }
+      { $set: { "post": "NEW POST" } } // You can modify this to update with new content if needed
     );
 
     console.log(result);
@@ -112,7 +115,6 @@ app.post('/delete/:id', async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 // Listen on the specified port
 app.listen(PORT, () => {
